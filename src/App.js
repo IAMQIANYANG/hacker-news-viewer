@@ -3,13 +3,20 @@ import './App.css';
 
 const DEFAULT_QUERY = 'redux';
 
+const DEFAULT_PAGE = 0;
+
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 
 const PATH_SEARCH = '/search?';
 
 const PARAM_SEARCH = 'query=';
 
+const PARAM_PAGE = 'page='
 // const isSearched = (query) => (item) => !query || item.title.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+
+
+const Button = ({onClick, children}) =>
+      <button onClick={onClick} type="button"> {children} </button>
 
 const SearchInput = ({value, onChange, children, onSubmit}) =>
       <form onSubmit={onSubmit}>
@@ -51,15 +58,15 @@ class App extends Component {
     this.setState({result})
   }
 
-  fetchTopStories(query){
-    fetch(`${PATH_BASE}${PATH_SEARCH}${PARAM_SEARCH}${query}`)
+  fetchTopStories(query, page){
+    fetch(`${PATH_BASE}${PATH_SEARCH}${PARAM_SEARCH}${query}&${PARAM_PAGE}${page}`)
       .then(response => response.json())
       .then(result => this.setTopStories(result))
   }
 
   componentDidMount() {
     const { query } = this.state;
-    this.fetchTopStories(query);
+    this.fetchTopStories(query, DEFAULT_PAGE);
   }
 
   handleInput(e){
@@ -68,19 +75,22 @@ class App extends Component {
 
   onSearchSubmit(event) {
     const { query } = this.state;
-    this.fetchTopStories(query);
+    this.fetchTopStories(query, DEFAULT_PAGE);
     event.preventDefault();
   }
 
   render() {
     const {result, query} = this.state;
+    const page = (result && result.page) || 0
     return (
       <div className="page">
         <div className="interactions">
           <SearchInput value={query} onChange={this.handleInput} onSubmit={this.onSearchSubmit}>Search</SearchInput>
         </div>
         {result? <SearchTable list={result.hits} pattern={query}/> : null}
-
+        <div className="interactions">
+            <Button onclick={this.fetchTopStories(query, page + 1)} > More </Button>
+        </div>
       </div>
     );
   }
