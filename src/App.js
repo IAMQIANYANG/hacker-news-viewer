@@ -20,11 +20,16 @@ const PARAM_HPP = 'hitsPerPage=';
 // const isSearched = (query) => (item) => !query || item.title.toLowerCase().indexOf(query.toLowerCase()) !== -1;
 
 
-const Loading = () =>
-  <div> Loading... </div>
-
 const Button = ({onClick, children}) =>
       <button onClick={onClick} type="button"> {children} </button>;
+
+const Loading = () =>
+  <div> Loading... </div>;
+
+const withLoading = (Component) => ({isLoading, ...rest}) =>
+  isLoading? <Loading /> : <Component {...rest} /> ;
+
+const ButtonWithLoading = withLoading(Button);
 
 const SearchInput = ({value, onChange, children, onSubmit}) =>
       <form onSubmit={onSubmit}>
@@ -118,10 +123,9 @@ class App extends Component {
           <SearchInput value={query} onChange={this.handleInput} onSubmit={this.onSearchSubmit}>Search</SearchInput>
           <SearchTable list={list} pattern={query}/>
         </div>
-        {isLoading? <Loading /> :
         <div className="interactions">
-            <Button onClick={() => this.fetchTopStories(searchKey, page + 1)} > More </Button>
-        </div> }
+            <ButtonWithLoading isLoading={isLoading} onClick={() => this.fetchTopStories(searchKey, page + 1)} > More </ButtonWithLoading>
+        </div>
       </div>
     );
   }
