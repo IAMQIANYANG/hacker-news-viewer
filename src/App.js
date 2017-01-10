@@ -5,26 +5,32 @@ const DEFAULT_QUERY = 'redux';
 
 const DEFAULT_PAGE = 0;
 
+const DEFAULT_HPP = '100';
+
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 
 const PATH_SEARCH = '/search?';
 
 const PARAM_SEARCH = 'query=';
 
-const PARAM_PAGE = 'page='
+const PARAM_PAGE = 'page=';
+
+const PARAM_HPP = 'hitsPerPage=';
+
 // const isSearched = (query) => (item) => !query || item.title.toLowerCase().indexOf(query.toLowerCase()) !== -1;
 
 
+const Loading = () =>
+  <div> Loading... </div>
+
 const Button = ({onClick, children}) =>
-      <button onClick={onClick} type="button"> {children} </button>
+      <button onClick={onClick} type="button"> {children} </button>;
 
 const SearchInput = ({value, onChange, children, onSubmit}) =>
       <form onSubmit={onSubmit}>
         <input type="text" value={value} onChange={onChange} />
         <button type="submit">{children}</button>
       </form>;
-
-
 
 const SearchTable = ({list, pattern}) =>
       <div className="table">
@@ -44,28 +50,48 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      result: '',
-      query: DEFAULT_QUERY
+      results: null,
+      query: DEFAULT_QUERY,
+      searchKey: '',
+      isLoading: false
     };
 
     this.setTopStories = this.setTopStories.bind(this);
     this.fetchTopStories = this.fetchTopStories.bind(this);
     this.handleInput = this.handleInput.bind(this);
-    this.onSearchSubmit = this.onSearchSubmit.bind(this)
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
+    this.needToSearch = this.needToSearch.bind(this);
+
+  }
+
+  needToSearch(query){
+    return !this.state.results[query]
   }
 
   setTopStories(result){
-    this.setState({result})
+    const {hits, page} = result;
+    const {searchKey} = this.state;
+
+    const oldHits = page === 0? [] : this.state.results[searchKey].hits;
+    const updatedHits = [...oldHits, ...hits];
+    this.setState({results: {
+                  ...this.state.results,
+                  [searchKey]: {hits: updatedHits, page}
+                },
+                  isLoading: false
+              })
   }
 
   fetchTopStories(query, page){
-    fetch(`${PATH_BASE}${PATH_SEARCH}${PARAM_SEARCH}${query}&${PARAM_PAGE}${page}`)
+    this.setState({isLoading: true});
+    fetch(`${PATH_BASE}${PATH_SEARCH}${PARAM_SEARCH}${query}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(response => response.json())
       .then(result => this.setTopStories(result))
   }
 
   componentDidMount() {
     const { query } = this.state;
+    this.setState({searchKey: query});
     this.fetchTopStories(query, DEFAULT_PAGE);
   }
 
@@ -75,25 +101,32 @@ class App extends Component {
 
   onSearchSubmit(event) {
     const { query } = this.state;
-    this.fetchTopStories(query, DEFAULT_PAGE);
+    this.setState({searchKey:query});
+    if (this.needToSearch(query)) {
+      this.fetchTopStories(query, DEFAULT_PAGE);
+    }
     event.preventDefault();
   }
 
   render() {
-    const {result, query} = this.state;
-    const page = (result && result.page) || 0
+    const {results, query, searchKey, isLoading} = this.state;
+    const page = (results && results[searchKey] && results[searchKey].page) || 0;
+    const list = (results && results[searchKey] && results[searchKey].hits) || [];
     return (
       <div className="page">
         <div className="interactions">
           <SearchInput value={query} onChange={this.handleInput} onSubmit={this.onSearchSubmit}>Search</SearchInput>
+          <SearchTable list={list} pattern={query}/>
         </div>
-        {result? <SearchTable list={result.hits} pattern={query}/> : null}
+        {isLoading? <Loading /> :
         <div className="interactions">
-            <Button onclick={this.fetchTopStories(query, page + 1)} > More </Button>
-        </div>
+            <Button onClick={() => this.fetchTopStories(searchKey, page + 1)} > More </Button>
+        </div> }
       </div>
     );
   }
 }
 
 export default App;
+
+export {Button, SearchInput, SearchTable }
