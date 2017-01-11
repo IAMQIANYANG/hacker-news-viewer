@@ -1,0 +1,97 @@
+exports[`App snapshots 1`] = `
+<div
+  className="page">
+  <div
+    className="interactions">
+    <form
+      onSubmit={[Function]}>
+      <input
+        onChange={[Function]}
+        type="text"
+        value="redux" />
+      <button
+        type="submit">
+        Search
+      </button>
+    </form>
+    <div
+      className="table" />
+  </div>
+  <div
+    className="interactions">
+    <button
+      onClick={[Function]}
+      type="button">
+       
+       More 
+       
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Button snapshots 1`] = `
+<button
+  onClick={undefined}
+  type="button">
+   
+   More 
+   
+</button>
+`;
+
+exports[`SearchInput snapshots 1`] = `
+<form
+  onSubmit={undefined}>
+  <input
+    onChange={undefined}
+    type="text"
+    value={undefined} />
+  <button
+    type="submit">
+     Search 
+  </button>
+</form>
+`;
+
+exports[`SearchTable snapshots 1`] = `
+<div
+  className="table">
+  <div
+    className="table-row">
+    <span>
+      <a
+        href={undefined}>
+        1
+      </a>
+    </span>
+    <span>
+      1
+    </span>
+    <span>
+      1
+    </span>
+    <span>
+      2
+    </span>
+  </div>
+  <div
+    className="table-row">
+    <span>
+      <a
+        href={undefined}>
+        2
+      </a>
+    </span>
+    <span>
+      2
+    </span>
+    <span>
+      1
+    </span>
+    <span>
+      2
+    </span>
+  </div>
+</div>
+`;
