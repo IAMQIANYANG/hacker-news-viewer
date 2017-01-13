@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import {sortBy} from 'lodash'
+import {sortBy} from 's'
 import classNames from 'classnames'
 
 const DEFAULT_QUERY = 'redux';
